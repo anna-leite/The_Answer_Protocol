@@ -35,7 +35,7 @@ enum Command {
 //	== ERR 403 GROUP_NOT_FOUND
 //	== ERR 202 NAME_NOT_FOUND
 //	== ERR 101 INVALID_COMMAND
-//	== ERR 102 INVALID_ARGMENTS
+//	== ERR 102 INVALID_ARGMENTS ???? seulement invalid input????
 
 enum Direction {
 	Nord,
@@ -56,17 +56,115 @@ fn packet_to_string(packet: Vec<u8>) -> Result<String, String> {
 	Ok(s_packet)
 }
 
-fn parse_command(packet: String) -> Result<Command, String> {
-	// je desencode
+// .is_none() : vérifie que la valeur est None.
+// .is_some() : vérifie que la valeur est Some.
+
+fn parse_simple_command(str_packet: &str) -> Option<Command> {
+	let mut words = str_packet.split_whitespace();
+
+	match words.next() {
+		Some("LOOK") => Some(Command::Look),
+		Some("QUIT") => Some(Command::Quit),
+		Some("WHO") => Some(Command::Who),
+		Some("INVENTORY") => Some(Command::Inventory),
+		Some("STATUS") => Some(Command::Status),
+		Some("QUESTS") => Some(Command::Quests),
+		_ => None,
+	}
+}
+
+fn parse_move(str_packet: &str) -> Option<Command> {
+	let mut words = str_packet.split_whitespace();
+
+	match words.next() {
+		Some("MOVE") => {
+			match words.next() {
+				Some("Nord") => Some(Command::Move {direction: Direction::Nord}),
+				Some("Sud") => Some(Command::Move {direction: Direction::Sud}),
+				Some("East") => Some(Command::Move {direction: Direction::East}),
+				Some("West") => Some(Command::Move {direction: Direction::West}),
+				_ => None,
+			},
+		},
+		_ => None,
+	}
+}
+
+fn parse_string_argument(str_packet: &str) -> Option<Command> {
+	let mut words = str_packet.split_whitespace();
+
+	match words.next() {
+		Some("CONNECT") => Some(Command::Connect {name: words.next().unwrap().to_string()}),
+		Some("TAKE") => Some(Command::Take {item: words.next().unwrap().to_string()}),
+		Some("DROP") => Some(Command::Drop {item: words.next().unwrap().to_string()}),
+		Some("TALK") => Some(Command::Talk {name: words.next().unwrap().to_string()}),
+		Some("ATTACK") => Some(Command::Attack {name: words.next().unwrap().to_string()}),
+		Some("QUEST") => Some(Command::Quest {name: words.next().unwrap().to_string()}),
+		_ => None,
+	}
+}
+
+fn parse_group_command(str_packet: &str) -> Option<Command> {
+	to_do();
+}
+
+fn parse_chat(str_packet: &str) -> Option<Command> {
+	to_do();
+}
+
+fn parse_command(str_packet: String) -> Result<Command, String> {
+	// il manque le parsing de help !!!!
+	let count = str_packet.split_whitespace().count();
+
+	if count == 1 {
+		match parse_simple_command(&str_packet) {
+			Some(command) => Ok(command),
+			None => Err("ERR 101 INVALID_COMMAND".to_string()),
+		}
+	} else if count == 2 {
+		match parse_move(&str_packet) {
+			Some(command) => Ok(command),
+			None => match parse_string_argument(&str_packet) {
+				Some(command) => Ok(command),
+				None => Err("ERR 101 INVALID_COMMAND".to_string()),
+			}
+		}
+	} else if count > 2 {
+		to_do();
+	}
+
+	Err("ERR 101 INVALID_COMMAND".to_string())
+}
+
+// fn parse_command(str_packet: String) -> Result<Command, String> {
+//     let count = str_packet.split_whitespace().count();
+
+//     match count {
+//         0 => Err("ERR 101 INVALID_COMMAND".to_string()),
+
+//         1 => parse_simple_command(&str_packet)
+//             .ok_or_else(|| "ERR 101 INVALID_COMMAND".to_string()),
+
+//         2 => parse_move(&str_packet)
+//             .or_else(|| parse_string_argument(&str_packet))
+//             .ok_or_else(|| "ERR 101 INVALID_COMMAND".to_string()),
+
+//         _ => {
+//             to_do();
+//             Err("ERR 101 INVALID_COMMAND".to_string())
+//         }
+//     }
+// }
+
+
+fn parse_packet(packet: Vec<u8) -> Result<Command, String> {
+	let str_packet: Result<String, String> = packet_to_string(packet);
+
+	match str_packet {
+		Ok(valid_str) => Ok(parse_command(str_packet.unwrap())?),
+		Err(error) => Err(error),
+	}
 	// je retire le caractere de fin de paquet
-	// je split au espace ====== PEUT ETRE JE FAIS AUTREMENT !!!!!
-	// je regarde si le premier mot match avec une commande 
-	// Err() == ERR 101 INVALID_COMMAND
-	// je compte le nombre d'arguments fournis et je regarde si c'est regarde si le nombre est valide
-	// ERR 102 INVALID_ARGUMENTS
-	// je regarde si les arguments sont bien compose des caracteres autorises ou du type demande 
-	// ERR 102 INVALID_ARGUMENTS
-	// je creer mon objet Command a partir du parsing ainsi effectuer
 }
 
 // fn handle_command(command: Self) -> String {
