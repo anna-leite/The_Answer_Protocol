@@ -1,5 +1,7 @@
-enum Command {
-	Connect {name: String}, // CONNECT player_name ==> rep[OK, ERR 201 NAME_IN_USE, ERR 900 CONNECTION FAILED]
+use crate::action::*;
+
+pub enum Command {
+	// Connect {name: String}, // CONNECT player_name ==> rep[OK, ERR 201 NAME_IN_USE, ERR 900 CONNECTION FAILED]
 	Look, // LOOK ==> rep[OK current room state as JSON]
 	Move {direction: Direction}, // MOVE dirrection ==> rep[OK room=new_room, ERR 301 NO_EXIT]
 	Quit, // QUIT ==> rep[OK bye]
@@ -24,7 +26,7 @@ enum Command {
 	// ATTENTION D'AUTRES COMMANDES A IMPLEMENTER POUR LES QUESTS
 	// COMPLETE_QUEST
 	// ABANDON_QUEST
-	Help , // HELP optional_command_name ==> rep[OK rules, ERR 101 COMMAND_NOT_FOUND]
+	// Help , // HELP optional_command_name ==> rep[OK rules, ERR 101 COMMAND_NOT_FOUND]
 
 }
 
@@ -35,23 +37,23 @@ enum Command {
 //	== ERR 101 INVALID_COMMAND
 //	== ERR 102 INVALID_ARGMENTS ???? seulement invalid input????
 
-enum Direction {
+pub enum Direction {
 	Nord,
 	Sud,
 	East,
 	West,
 }
 
-enum MessageScope {
+pub enum MessageScope {
 	Global,
 	Room,
 	Group {name: String},
 }
 
-fn packet_to_string(packet: Vec<u8>) -> Result<String, String> {
-	String::from_utf8(packet)
-		.map_err(|_| "ERR 101 INVALID_COMMAND".to_string())
-}
+// fn packet_to_string(packet: Vec<u8>) -> Result<String, String> {
+// 	String::from_utf8(packet)
+// 		.map_err(|_| "ERR 101 INVALID_COMMAND".to_string())
+// }
 
 fn parse_simple_command(str_packet: &str) -> Option<Command> {
 	let mut words = str_packet.split_whitespace();
@@ -78,7 +80,7 @@ fn parse_move(str_packet: &str) -> Option<Command> {
 				Some("East") => Some(Command::Move {direction: Direction::East}),
 				Some("West") => Some(Command::Move {direction: Direction::West}),
 				_ => None,
-			},
+			}
 		},
 		_ => None,
 	}
@@ -101,7 +103,7 @@ fn parse_group_command(str_packet: &str, count: usize) -> Option<Command> {
 	let mut words = str_packet.split_whitespace();
 
 	match (words.next(), words.next()) {
-		(Some("CREATE"), Some("GROUP")) if count == 3 => Some("GROUP") => Some(Command::CreateGroup {name: words.next()?.to_string()}),
+		(Some("CREATE"), Some("GROUP")) if count == 3 => Some(Command::CreateGroup {name: words.next()?.to_string()}),
 		(Some("GROUP"), Some("INVITE")) if count == 4 => {
 			let group_name = words.next()?.to_string();
 			let player_name = words.next()?.to_string();
@@ -148,38 +150,39 @@ fn parse_command(str_packet: String) -> Result<Command, String> {
 	}
 }
 
-fn parse_connect(str_packet: String) -> Result<Command, String> {
-	let str_packet = str_packet.strip_suffix("\r\n").ok_or("ERR 101 INVALID_COMMAND".to_string())?;
+// fn parse_connect(str_packet: String) -> Result<Command, String> {
+// 	let str_packet = str_packet.strip_suffix("\r\n").ok_or("ERR 101 INVALID_COMMAND".to_string())?;
 
-	let count = str_packet.split_whitespace().count();
+// 	let count = str_packet.split_whitespace().count();
 
-	match count {
-		2 => {
-			let mut words = str_packet.split_whitespace();
+// 	match count {
+// 		2 => {
+// 			let mut words = str_packet.split_whitespace();
 
-			match words.next() {
-				Some("CONNECT") => Ok(Command::Connect {name: words.next().unwrap().to_string()}),
-				_ => Err("ERR 101 INVALID_COMMAND".to_string()),
-			}
-		}
-		_ => Err("ERR 101 INVALID_COMMAND".to_string()),
-	}
-}
+// 			match words.next() {
+// 				Some("CONNECT") => Ok(Command::Connect {name: words.next().unwrap().to_string()}),
+// 				_ => Err("ERR 101 INVALID_COMMAND".to_string()),
+// 			}
+// 		}
+// 		_ => Err("ERR 101 INVALID_COMMAND".to_string()),
+// 	}
+// }
 
-fn parse_packet(packet: Vec<u8) -> Result<Command, String> {
-	let str_packet = packet_to_string(packet)?;
+pub fn parse_packet(packet: String) -> Result<Command, String> {
+	// attention quand on travaillera en donnee brut packet sera type en Vec<u8>
+	// let str_packet = packet_to_string(packet)?;
 
 	// condition pour verifier si premiere connection 
 	// sinon parse_command classique 
 
 	// parse_connect(str_packet)
 
-	parse_command(str_packet)
+	parse_command(packet)
 }
 
-fn handle_command(command: Self) -> String {
+pub fn handle_command(command: Command) -> String {
 	match command {
-		Command::Connect {name} => connect_player(name),
+		// Command::Connect {name} => connect_player(name),
 		Command::Look => look(),
 		Command::Move {direction} => new_direction(direction),
 		Command::Quit => quit(),
@@ -202,7 +205,7 @@ fn handle_command(command: Self) -> String {
 		// ABANDON_QUEST
 		// COMPLETE_QUEST
 		Command::Quests => inventory_quests(),
-		Command::Help => help(),
+		// Command::Help => help(),
 	}
 }
 

@@ -1,6 +1,9 @@
 // use std::io::{Read, Write};
+mod requests;
+mod action;
 use std::io::{BufReader, prelude::*};
 use std::net::{TcpListener, TcpStream};
+use requests::{Command, parse_packet, handle_command};
 
 fn handle_client(mut stream: TcpStream, address: &str){
 	// PREMIERE SOLUTION ---------------------------------------------
@@ -30,13 +33,20 @@ fn handle_client(mut stream: TcpStream, address: &str){
 				return;
 			}
 			Ok(_) => {
-				let message = msg.trim_end_matches('\n').trim_end_matches('\r');
+				// let message = msg.trim_end_matches('\n').trim_end_matches('\r');
+				let parsing: Result<Command, String> = parse_packet(msg.clone());
 
-				println!("message from {} : {}", address, message);
+				let answer = match parsing {
+					Ok(command) => handle_command(command),
+					Err(error) => error,
+				};
 
-				let message = format!("OK {}\n", message);
+				println!("message from {} : {}", address, answer);
 
-				if let Err(e) = stream.write_all(message.as_bytes()) {
+				let answer = format!("{}\n", answer);
+
+
+				if let Err(e) = stream.write_all(answer.as_bytes()) {
 					println!("Failed to send message to client {} : {}", address, e);
 					return;
 				}
