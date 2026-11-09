@@ -85,3 +85,14 @@ fn main(){
 	// Gerer exit proprement avec une recuperation de input user!
 }
 
+// . Ce qu'il faut ajouter
+// Pour ton serveur, les protections importantes sont :
+// Protection	Rôle
+// Limite de taille	Empêcher les lignes excessivement longues
+// Validation UTF-8	Rejeter les données qui ne sont pas du texte UTF-8 valide
+// Validation des commandes	Rejeter les commandes malformées
+// Vérification de l'état	Empêcher les commandes non autorisées avant authentification
+// Gestion des erreurs	Éviter les panic en cas de données inattendues
+
+// En résumé : BufReader gère efficacement la lecture tamponnée et write_all() l'écriture complète. Ce sont des outils de communication, pas des mécanismes de sécurité.
+
