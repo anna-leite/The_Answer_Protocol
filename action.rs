@@ -1,18 +1,18 @@
-use crate::requests::{MessageScope, Direction};
+use crate::models::{MessageScope, Direction};
 
-// pub fn connect_player(name: String) -> String {
-// 	println!("{}", name);
-// 	// mecanisme de tcheque du name !!(ERR 201 NAME_IN_USE)
-// 	String::from("OK connected")
-// }
+pub fn connect_player(name: String) -> Result<SuccessMessage, CommandError> {
+	println!("{}", name);
+	// mecanisme de tcheque du name !!(ERR 201 NAME_IN_USE)
+	String::from("OK connected")
+}
 
-pub fn look() -> String {
+pub fn look() -> Result<SuccessMessage, CommandError> {
 	// menanisme de la recuperation de la data
 	// let answer == mecanisme qui fait construit la string a partir de OK + data en JSON
 	String::from("OK data_room_JSON")
 }
 
-pub fn new_direction(direction: Direction) -> String {
+pub fn new_direction(direction: Direction) -> Result<SuccessMessage, CommandError> {
 	let dir_str = match direction {
 		Direction::Nord => "Nord",
 		Direction::Sud => "Sud",
@@ -25,12 +25,12 @@ pub fn new_direction(direction: Direction) -> String {
 	String::from("OK room=id_room")
 }
 
-pub fn quit() -> String {
+pub fn quit() -> Result<SuccessMessage, CommandError> {
 	// deconnection propre
 	String::from("OK bye")
 }
 
-pub fn send_message(scope: MessageScope, message: String) -> String {
+pub fn send_message(scope: MessageScope, message: String) -> Result<SuccessMessage, CommandError> {
 	let scope_str = match scope {
 		MessageScope::Global => "Global".to_string(),
 		MessageScope::Room => "Room".to_string(),
@@ -44,13 +44,13 @@ pub fn send_message(scope: MessageScope, message: String) -> String {
 	String::from("OK")
 }
 
-pub fn who() -> String {
+pub fn who() -> Result<SuccessMessage, CommandError> {
 	// calcul du nb de joueurs dans un salle
 	// creation de la reponse a partir de l'int
 	String::from("OK players=nb_player")
 }
 
-pub fn create_group(name: String) -> String {
+pub fn create_group(name: String) -> Result<SuccessMessage, CommandError> {
 	println!("{}", name);
 	// verifie si le nom du groupe est deja utilise
 	// ERR 201 NAME_IN_USE
@@ -58,7 +58,7 @@ pub fn create_group(name: String) -> String {
 	String::from("OK group=name")
 }
 
-pub fn group_invit(group_name: &str, player_name: &str) -> String {
+pub fn group_invit(group_name: &str, player_name: &str) -> Result<SuccessMessage, CommandError> {
 	println!("{} {}", group_name, player_name);
 	// verifie l'exitence du nom du group
 	// ERR 403 GROUP_NOT_FOUND
@@ -72,7 +72,7 @@ pub fn group_invit(group_name: &str, player_name: &str) -> String {
 	String::from("OK")
 }
 
-pub fn group_join(name: &str) -> String {
+pub fn group_join(name: &str) -> Result<SuccessMessage, CommandError> {
 	println!("{}", name);
 	// verifie l'exitence du nom du group
 	// ERR 403 GROUP_NOT_FOUND
@@ -82,7 +82,7 @@ pub fn group_join(name: &str) -> String {
 	String::from("OK group=name")
 }
 
-pub fn group_leave(name: &str) -> String {
+pub fn group_leave(name: &str) -> Result<SuccessMessage, CommandError> {
 	println!("{}", name);
 	// verifie l'exitence du nom du group
 	// ERR 403 GROUP_NOT_FOUND
@@ -90,7 +90,7 @@ pub fn group_leave(name: &str) -> String {
 	String::from("OK")
 }
 
-pub fn take_item(item: &str) -> String {
+pub fn take_item(item: &str) -> Result<SuccessMessage, CommandError> {
 	println!("{}", item);
 	// verifie l'existamce de l'item dans la room qui est la position du player
 	// ERR 404 ITEM_NOT_FOUND
@@ -98,7 +98,7 @@ pub fn take_item(item: &str) -> String {
 	String::from("OK taken=item")
 }
 
-pub fn drop_item(item: &str) -> String {
+pub fn drop_item(item: &str) -> Result<SuccessMessage, CommandError> {
 	println!("{}", item);
 	// verifie l'existance de l'item dans l'inventory
 	// ERR 404 ITEM_NOT_IN_INVENTORY
@@ -106,13 +106,13 @@ pub fn drop_item(item: &str) -> String {
 	String::from("OK dropped=item")
 }
 
-pub fn inventory() -> String {
+pub fn inventory() -> Result<SuccessMessage, CommandError> {
 	// mecanisme de recuperation de la data
 	// let answer == mecanisme qui fait construit la string a partir de OK + data en JSON array
 	String::from("OK data_inventory_JSON_array")
 }
 
-pub fn talk_ncp(name: &str) -> String {
+pub fn talk_ncp(name: &str) -> Result<SuccessMessage, CommandError> {
 	println!("{}", name);
 	// verifie la presence du ncp dans la room
 	// ERR 404 NPC_NOT_FOUND
@@ -121,7 +121,7 @@ pub fn talk_ncp(name: &str) -> String {
 	String::from("OK replique_ncp")
 }
 
-pub fn attack_ncp(name: &str) -> String {
+pub fn attack_ncp(name: &str) -> Result<SuccessMessage, CommandError> {
 	println!("{}", name);
 	// verifie la presence du ncp dans la room
 	// ERR 404 NPC_NOT_FOUND
@@ -132,13 +132,13 @@ pub fn attack_ncp(name: &str) -> String {
 	String::from("OK data_combat_ncp")
 }
 
-pub fn status_player() -> String {
+pub fn status_player() -> Result<SuccessMessage, CommandError> {
 	// menanisme de recuperation de la data du player 
 	// let answer == construit la reponse a partir de OK et de la data du player en JSON
 	String::from("OK data_player_JSON")
 }
 
-pub fn ask_for_quest(name: &str) -> String {
+pub fn ask_for_quest(name: &str) -> Result<SuccessMessage, CommandError> {
 	println!("{}", name);
 	// verifie la presence du ncp dans la room
 	// ERR 404 NPC_NOT_FOUND
@@ -149,7 +149,7 @@ pub fn ask_for_quest(name: &str) -> String {
 	String::from("OK data_quest_JSON")
 }
 
-pub fn inventory_quests() -> String {
+pub fn inventory_quests() -> Result<SuccessMessage, CommandError> {
 	// menacisme de recuperation de la data de toutes les quests du player en JSON array
 	// let answer == construit la reponse a partir de OK et de la data de toues les quests en JSON array
 	String::from("OK data_all_quests_JSON_array")

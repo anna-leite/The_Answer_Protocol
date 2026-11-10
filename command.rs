@@ -1,54 +1,6 @@
 use crate::action::*;
-
-pub enum Command {
-	// Connect {name: String}, // CONNECT player_name ==> rep[OK, ERR 201 NAME_IN_USE, ERR 900 CONNECTION FAILED]
-	Look, // LOOK ==> rep[OK current room state as JSON]
-	Move {direction: Direction}, // MOVE dirrection ==> rep[OK room=new_room, ERR 301 NO_EXIT]
-	Quit, // QUIT ==> rep[OK bye]
-	Chat {scope: MessageScope, message: String}, // CHAT SCOPE "message" ==> rep[OK, ERR 401 NOT_IN_GROUP, ERR 403 GROUP_NOT_FOUND]
-	Who, // WHO ==> rep[OK players=nb_players]
-	CreateGroup {name: String}, // CREATE GROUP group_name ==> rep[OK group=group_name, ERR 201 NAME_IN_USE]
-	GroupInvit {group_name: String, player_name: String}, // GROUP INVITE group_name player_name ==> rep[OK, ERR 401 NOT_IN_GROUP, ERR 402 ALREADY_IN_GROUP, ERR 403 GROUP_NOT_FOUND, ERR 202 NAME_NOT_FOUND]
-	GroupJoin {name: String}, // GROUP JOIN group_name ==> rep[OK group=group_name, ERR 403 GROUP_NOT_FOUND, ERR 402 ALREADY_IN_GROUP]
-	GroupLeave {name: String}, // GROUP LEAVE group_name ==> rep[OK, ERR 403 GROUP_NOT_FOUND]
-	Take {item: String}, // TAKE item_name ==> rep[OK taken=item_name, ERR 404 ITEM_NOT_FOUND]
-	Drop {item: String}, // DROP item_name ==> rep[OK dropped=item_name, ERR 404 ITEM_NOT_IN_INVENTORY]
-	Inventory,  // INVENTORY ==> rep[OK [current items as JSON array]]
-	Talk {name: String}, // TALK ncp_name ==> rep[OK "ncp_message", ERR 404 NPC_NOT_FOUND]
-	Attack {name: String}, // ATTACK ncp_name ==> rep[OK combat_status_as_JSON, ERR 404 NPC_NOT_FOUND, ERR 405 NPC_NOT_HOSTILE]
-	Status, // STATUS ==>  rep[OK {"hp": , "max_hp": , "status": ""}]
-	// ATTENTION D'AUTRES COMMANDES A IMPLEMENTER POUR LES COMBATS
-	// DEFEND
-	// FLEE
-	// USE_ITEM
-	Quest {name: String}, // QUEST ncp_name ==> rep[OK quest_data_as_json, ERR 404 NPC_NOT_FOUND, ERR 406 NO_QUEST_AVAILABLE]
-	Quests, // QUESTS ==> rep[OK list_all_player_quest_data_as_JSON_array]
-	// ATTENTION D'AUTRES COMMANDES A IMPLEMENTER POUR LES QUESTS
-	// COMPLETE_QUEST
-	// ABANDON_QUEST
-	// Help , // HELP optional_command_name ==> rep[OK rules, ERR 101 COMMAND_NOT_FOUND]
-
-}
-
-// ERR 901 SEND_FAILED && ERR 900 CONNECTION_FAILED == ATTENTION ERREUR POSSIBLE A CAHQUE ENVOI !!!!!!!!!!!!!!!
-// CREER DES NOUVELLE ERREUR POUR LES NOM DE GROUPE PAS TROUVE !!!!!!!!!!!!!!!!!!
-//	== ERR 403 GROUP_NOT_FOUND
-//	== ERR 202 NAME_NOT_FOUND
-//	== ERR 101 INVALID_COMMAND
-//	== ERR 102 INVALID_ARGMENTS ???? seulement invalid input????
-
-pub enum Direction {
-	Nord,
-	Sud,
-	East,
-	West,
-}
-
-pub enum MessageScope {
-	Global,
-	Room,
-	Group {name: String},
-}
+use crate::models::*;
+use crate::error::CommandError;
 
 // fn packet_to_string(packet: Vec<u8>) -> Result<String, String> {
 // 	String::from_utf8(packet)
@@ -131,58 +83,59 @@ fn parse_chat(str_packet: &str, count: usize) -> Option<Command> {
 	}
 }
 
-fn parse_command(str_packet: String) -> Result<Command, String> {
+fn parse_command(str_packet: String) -> Result<Command, CommandError> {
 	// il manque le parsing de help !!!!
-	let str_packet = str_packet.strip_suffix("\n").ok_or("ERR 101 INVALID_COMMAND".to_string())?;
+	let str_packet = str_packet.strip_suffix("\n").ok_or(CommandError::InvalidCommand)?;
 
 	let count = str_packet.split_whitespace().count();
 
 	match count {
-		0 => Err("ERR 101 INVALID_COMMAND".to_string()),
+		0 => Err(CommandError::InvalidCommand),
 		1 => parse_simple_command(str_packet)
-			.ok_or_else(|| "ERR 101 INVALID_COMMAND".to_string()),
+			.ok_or_else(|| CommandError::InvalidCommand),
 		2 => parse_move(str_packet)
 			.or_else(|| parse_string_argument(&str_packet))
-			.ok_or_else(|| "ERR 101 INVALID_COMMAND".to_string()),
+			.ok_or_else(|| CommandError::InvalidCommand),
 		_ => parse_group_command(str_packet, count)
 			.or_else(|| parse_chat(str_packet, count))
-			.ok_or_else(|| "ERR 101 INVALID_COMMAND".to_string())
+			.ok_or_else(|| CommandError::InvalidCommand)
 	}
 }
 
-// fn parse_connect(str_packet: String) -> Result<Command, String> {
-// 	let str_packet = str_packet.strip_suffix("\r\n").ok_or("ERR 101 INVALID_COMMAND".to_string())?;
+fn parse_connect(str_packet: String) -> Result<Command, CommandError> {
+	let str_packet = str_packet.strip_suffix("\r\n").ok_or(CommandError::InvalidCommand)?;
 
-// 	let count = str_packet.split_whitespace().count();
+	let count = str_packet.split_whitespace().count();
 
-// 	match count {
-// 		2 => {
-// 			let mut words = str_packet.split_whitespace();
+	match count {
+		2 => {
+			let mut words = str_packet.split_whitespace();
 
-// 			match words.next() {
-// 				Some("CONNECT") => Ok(Command::Connect {name: words.next().unwrap().to_string()}),
-// 				_ => Err("ERR 101 INVALID_COMMAND".to_string()),
-// 			}
-// 		}
-// 		_ => Err("ERR 101 INVALID_COMMAND".to_string()),
-// 	}
-// }
+			match words.next() {
+				Some("CONNECT") => Ok(Command::Connect {name: words.next().unwrap().to_string()}),
+				_ => Err(CommandError::InvalidCommand),
+			}
+		}
+		_ => Err(CommandError::InvalidCommand),
+	}
+}
 
-pub fn parse_packet(packet: String) -> Result<Command, String> {
+pub fn parse_packet(packet: String) -> Result<Command, CommandError> {
 	// attention quand on travaillera en donnee brut packet sera type en Vec<u8>
 	// let str_packet = packet_to_string(packet)?;
 
 	// condition pour verifier si premiere connection 
 	// sinon parse_command classique 
-
-	// parse_connect(str_packet)
+	if packet.contains("CONNECT") {
+		return parse_connect(packet)
+	}
 
 	parse_command(packet)
 }
 
 pub fn handle_command(command: Command) -> String {
 	match command {
-		// Command::Connect {name} => connect_player(name),
+		Command::Connect {name} => connect_player(name),
 		Command::Look => look(),
 		Command::Move {direction} => new_direction(direction),
 		Command::Quit => quit(),
