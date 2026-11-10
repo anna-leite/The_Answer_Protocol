@@ -1,13 +1,6 @@
-// use std::io::{Read, Write};
-mod command;
-mod action;
-mod models;
-mod error;
+use protocol::command::{create_answer};
 use std::io::{BufReader, prelude::*};
 use std::net::{TcpListener, TcpStream};
-use command::{parse_packet, handle_command};
-use models::Command;
-use error::{CommandError, error_to_string};
 
 fn handle_client(mut stream: TcpStream, address: &str){
 	// PREMIERE SOLUTION ---------------------------------------------
@@ -37,12 +30,14 @@ fn handle_client(mut stream: TcpStream, address: &str){
 				return;
 			}
 			Ok(_) => {
-				// let message = msg.trim_end_matches('\n').trim_end_matches('\r');
-				let parsing: Result<Command, CommandError> = parse_packet(msg.clone());
-
-				let answer = match parsing {
-					Ok(command) => handle_command(command),
-					Err(error) => error_to_string(error),
+				let answer = match create_answer(msg.clone()) {
+					Ok(response) => response,
+					Err(_error) => {
+						println!("Server error");
+						// ici on peut envoyer le log d'erreur
+						// ici on peut envoyer le log de deconnexion du client 
+						return; // arret de la connexion car probleme de server
+					}
 				};
 
 				println!("message from {} : {}", address, answer);
@@ -109,4 +104,3 @@ fn main(){
 // Gestion des erreurs	Éviter les panic en cas de données inattendues
 
 // En résumé : BufReader gère efficacement la lecture tamponnée et write_all() l'écriture complète. Ce sont des outils de communication, pas des mécanismes de sécurité.
-

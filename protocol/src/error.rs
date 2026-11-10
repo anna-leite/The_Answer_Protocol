@@ -1,4 +1,9 @@
-#[repr(u16)]
+
+pub enum ServerError {
+    Serialization(serde_json::Error),
+    Protocol (CommandError),
+    // et d'autre qu'on sait pas encore 
+}
 pub enum CommandError {
     InvalidCommand,
     // InvalidArgument,
@@ -43,6 +48,13 @@ pub fn error_to_string(error: CommandError) -> String {
     let (id, message) = error.info();
 
     format!("ERR {} {}", id, message)
+}
+
+pub fn handle_error(error: ServerError) -> Result<String, ServerError> {
+    match error {
+        ServerError::Protocol(err) => Ok(error_to_string(err)),
+        other => Err(other),
+    }
 }
 
 // ERR 901 SEND_FAILED && ERR 900 CONNECTION_FAILED == ATTENTION ERREUR POSSIBLE A CAHQUE ENVOI !!!!!!!!!!!!!!!
