@@ -3,7 +3,7 @@ use serde_json::Value;
 // on peut utilise json! pour creer un json a partir d'une string
 // let json_string = serde_json::to_string(&room_state).unwrap(); pour passer en string pour le paquet
 
-pub enum SuccessMessage {
+pub enum Success {
     Connect,
     Look {data: Value},
     Move {new_room: String},
@@ -25,35 +25,35 @@ pub enum SuccessMessage {
     // Help,
 }
 
-pub fn success_to_string(success: SuccessMessage) -> Result<String, serde_json::Error> {
+pub fn success_to_string(success: Success) -> Result<String, serde_json::Error> {
     let arg: String = match success {
-        SuccessMessage::Connect => "hello proto=1".to_string(),
+        Success::Connect => "hello proto=1".to_string(),
         
-        SuccessMessage::Quit => "bye".to_string(),
+        Success::Quit => "bye".to_string(),
 
-        SuccessMessage::Chat
-        | SuccessMessage::GroupInvit
-        | SuccessMessage::GroupLeave => String::new(),
+        Success::Chat
+        | Success::GroupInvit
+        | Success::GroupLeave => String::new(),
 
-        SuccessMessage::Look {data}
-        | SuccessMessage::Inventory {data}
-        | SuccessMessage::Attack {data}
-        | SuccessMessage::Status {data}
-        | SuccessMessage::Quest {data}
-        | SuccessMessage::Quests {data}=> serde_json::to_string(&data)?,
+        Success::Look {data}
+        | Success::Inventory {data}
+        | Success::Attack {data}
+        | Success::Status {data}
+        | Success::Quest {data}
+        | Success::Quests {data}=> serde_json::to_string(&data)?,
 
-        SuccessMessage::Move {new_room} => format!("room={}", new_room),
+        Success::Move {new_room} => format!("room={}", new_room),
 
-        SuccessMessage::Who {players} => format!("players={}", players),
+        Success::Who {players} => format!("players={}", players),
 
-        SuccessMessage::CreateGroup {name}
-        | SuccessMessage::GroupJoin {name} => format!("group={}", name),
+        Success::CreateGroup {name}
+        | Success::GroupJoin {name} => format!("group={}", name),
 
-        SuccessMessage::Take {item} => format!("taken={}", item),
+        Success::Take {item} => format!("taken={}", item),
 
-        SuccessMessage::Drop {item} => format!("dropped={}", item),
+        Success::Drop {item} => format!("dropped={}", item),
 
-        SuccessMessage::Talk {msg} => msg,
+        Success::Talk {msg} => msg,
     };
 
     if arg.is_empty() {

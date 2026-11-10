@@ -134,7 +134,7 @@ pub fn parse_packet(packet: String) -> Result<Command, CommandError> {
 }
 
 pub fn handle_command(command: Command) -> String {
-	match command {
+	let handling = match command {
 		Command::Connect {name} => connect_player(name),
 		Command::Look => look(),
 		Command::Move {direction} => new_direction(direction),
@@ -160,6 +160,8 @@ pub fn handle_command(command: Command) -> String {
 		Command::Quests => inventory_quests(),
 		// Command::Help => help(),
 	}
+
+	// gerer le retour pour en faire un paquet String quoi qu'il en soit ou une struct avec la string et les canaux pour savoir ou on envoi la reponse!!!
 }
 
 

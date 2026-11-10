@@ -1,18 +1,23 @@
 use crate::models::{MessageScope, Direction};
 
-pub fn connect_player(name: String) -> Result<SuccessMessage, CommandError> {
-	println!("{}", name);
+pub fn connect_player(name: String) -> Result<Success, ServerError> {
+	// println!("{}", name);
+	// validation du format de name
 	// mecanisme de tcheque du name !!(ERR 201 NAME_IN_USE)
-	String::from("OK connected")
+	Ok(Success::Connect {name})
 }
 
-pub fn look() -> Result<SuccessMessage, CommandError> {
+pub fn look() -> Result<Success, ServerError> {
 	// menanisme de la recuperation de la data
-	// let answer == mecanisme qui fait construit la string a partir de OK + data en JSON
-	String::from("OK data_room_JSON")
+	let data: Value = serde_json::json!({
+    "room_id": "forest_01",
+    "name": "Dark Forest",
+    "description": "A mysterious forest filled with ancient trees."});
+
+	Ok(Success::Look {data})
 }
 
-pub fn new_direction(direction: Direction) -> Result<SuccessMessage, CommandError> {
+pub fn new_direction(direction: Direction) -> Result<Success, ServerError> {
 	let dir_str = match direction {
 		Direction::Nord => "Nord",
 		Direction::Sud => "Sud",
@@ -22,15 +27,16 @@ pub fn new_direction(direction: Direction) -> Result<SuccessMessage, CommandErro
 	println!("{}", dir_str);
 	// update player data !!(ERR 301 NO_EXIT)
 	// si mouvement possible doit renvoyer la nouvelle position
-	String::from("OK room=id_room")
+	let new_room = "grenier".to_string();
+	Ok(Success::Move {new_room})
 }
 
-pub fn quit() -> Result<SuccessMessage, CommandError> {
+pub fn quit() -> Result<Success, ServerError> {
 	// deconnection propre
-	String::from("OK bye")
+	Ok(Success::Quit)
 }
 
-pub fn send_message(scope: MessageScope, message: String) -> Result<SuccessMessage, CommandError> {
+pub fn send_message(scope: MessageScope, message: String) -> Result<Success, ServerError> {
 	let scope_str = match scope {
 		MessageScope::Global => "Global".to_string(),
 		MessageScope::Room => "Room".to_string(),
@@ -41,24 +47,24 @@ pub fn send_message(scope: MessageScope, message: String) -> Result<SuccessMessa
 	// ERR 401 NOT_IN_GROUP, ERR 403 GROUP_NOT_FOUND
 	// creation du nouveau paquet a envoyer
 	// traitement de l'envoi du paquet au scope concerne
-	String::from("OK")
+	Ok(Success::Chat)
 }
 
-pub fn who() -> Result<SuccessMessage, CommandError> {
+pub fn who() -> Result<Success, ServerError> {
 	// calcul du nb de joueurs dans un salle
 	// creation de la reponse a partir de l'int
-	String::from("OK players=nb_player")
+	Ok(Success::Who {5})
 }
 
-pub fn create_group(name: String) -> Result<SuccessMessage, CommandError> {
-	println!("{}", name);
+pub fn create_group(name: String) -> Result<Success, ServerError> {
+	// println!("{}", name);
 	// verifie si le nom du groupe est deja utilise
 	// ERR 201 NAME_IN_USE
 	// creer le group
-	String::from("OK group=name")
+	Ok(Success::CreateGroup {name})
 }
 
-pub fn group_invit(group_name: &str, player_name: &str) -> Result<SuccessMessage, CommandError> {
+pub fn group_invit(group_name: &str, player_name: &str) -> Result<Success, ServerError> {
 	println!("{} {}", group_name, player_name);
 	// verifie l'exitence du nom du group
 	// ERR 403 GROUP_NOT_FOUND
@@ -69,59 +75,62 @@ pub fn group_invit(group_name: &str, player_name: &str) -> Result<SuccessMessage
 	// verifie si le player appartient deja au groupe
 	//  ERR 402 ALREADY_IN_GROUP
 	// ajoute le player au group
-	String::from("OK")
+	Ok(Success::GroupInvit)
 }
 
-pub fn group_join(name: &str) -> Result<SuccessMessage, CommandError> {
-	println!("{}", name);
+pub fn group_join(name: &str) -> Result<Success, ServerError> {
+	// println!("{}", name);
 	// verifie l'exitence du nom du group
 	// ERR 403 GROUP_NOT_FOUND
 	// verifie si le player appartient deja au groupe
 	//  ERR 402 ALREADY_IN_GROUP
 	// ajoute le player au groupe
-	String::from("OK group=name")
+	Ok(Success::GroupJoin {name})
 }
 
-pub fn group_leave(name: &str) -> Result<SuccessMessage, CommandError> {
+pub fn group_leave(name: &str) -> Result<Success, ServerError> {
 	println!("{}", name);
 	// verifie l'exitence du nom du group
 	// ERR 403 GROUP_NOT_FOUND
 	// retire la player du groupe
-	String::from("OK")
+	Ok(Success::GroupLeave)
 }
 
-pub fn take_item(item: &str) -> Result<SuccessMessage, CommandError> {
-	println!("{}", item);
+pub fn take_item(item: &str) -> Result<Success, ServerError> {
+	// println!("{}", item);
 	// verifie l'existamce de l'item dans la room qui est la position du player
 	// ERR 404 ITEM_NOT_FOUND
 	// prend l'item dans son inventory et le retire de la room
-	String::from("OK taken=item")
+	Ok(Success::Take {item})
 }
 
-pub fn drop_item(item: &str) -> Result<SuccessMessage, CommandError> {
-	println!("{}", item);
+pub fn drop_item(item: &str) -> Result<Success, ServerError> {
+	// println!("{}", item);
 	// verifie l'existance de l'item dans l'inventory
 	// ERR 404 ITEM_NOT_IN_INVENTORY
 	// retire l'item de l'inventory et le replace dans la room 
-	String::from("OK dropped=item")
+	Ok(Success::Drop {item})
 }
 
-pub fn inventory() -> Result<SuccessMessage, CommandError> {
+pub fn inventory() -> Result<Success, ServerError> {
 	// mecanisme de recuperation de la data
-	// let answer == mecanisme qui fait construit la string a partir de OK + data en JSON array
-	String::from("OK data_inventory_JSON_array")
+	let data: Value = serde_json::json!({[
+        {"id": 1, "name": "Alice", "level": 5},
+        {"id": 2, "name": "Bob", "level": 3}
+    ]});
+	Ok(Success::Inventory {data})
 }
 
-pub fn talk_ncp(name: &str) -> Result<SuccessMessage, CommandError> {
-	println!("{}", name);
+pub fn talk_ncp(name: &str) -> Result<Success, ServerError> {
+	// println!("{}", name);
 	// verifie la presence du ncp dans la room
 	// ERR 404 NPC_NOT_FOUND
 	// macanisme de recuperation de la replique du ncp
 	// let answer == construit la reponse a partir de OK et du bout de dialoque
-	String::from("OK replique_ncp")
+	Ok(Success::Talk {msg:  name})
 }
 
-pub fn attack_ncp(name: &str) -> Result<SuccessMessage, CommandError> {
+pub fn attack_ncp(name: &str) -> Result<Success, ServerError> {
 	println!("{}", name);
 	// verifie la presence du ncp dans la room
 	// ERR 404 NPC_NOT_FOUND
@@ -129,16 +138,30 @@ pub fn attack_ncp(name: &str) -> Result<SuccessMessage, CommandError> {
 	// ERR 405 NPC_NOT_HOSTILE
 	// mecanisme de recuperation de la data de combat du ncp
 	// let answer == construit la reponse a partir de OK et de la data combat ncp en JSON
-	String::from("OK data_combat_ncp")
+	let data: Value = serde_json::json!({
+    "exits": {
+        "north": "forest_02",
+        "south": "village_01",
+        "east": null,
+        "west": null
+    },
+    "players": [
+        {"id": 1, "name": "Alice", "level": 5},
+        {"id": 2, "name": "Bob", "level": 3}
+    ]});
+	Ok(Success::Attack {data})
 }
 
-pub fn status_player() -> Result<SuccessMessage, CommandError> {
+pub fn status_player() -> Result<Success, ServerError> {
 	// menanisme de recuperation de la data du player 
 	// let answer == construit la reponse a partir de OK et de la data du player en JSON
-	String::from("OK data_player_JSON")
+	let data: Value = serde_json::json!({
+    "items": ["healing_potion", "wooden_sword"],
+    "is_safe": false});
+	Ok(Success::Status {data})
 }
 
-pub fn ask_for_quest(name: &str) -> Result<SuccessMessage, CommandError> {
+pub fn ask_for_quest(name: &str) -> Result<Success, ServerError> {
 	println!("{}", name);
 	// verifie la presence du ncp dans la room
 	// ERR 404 NPC_NOT_FOUND
@@ -146,13 +169,25 @@ pub fn ask_for_quest(name: &str) -> Result<SuccessMessage, CommandError> {
 	// ERR 406 NO_QUEST_AVAILABLE
 	// mecanisme de recuperation de la data de la quest en JSON
 	// let answer == construit la reponse a partir de OK et de la data de la quest en JSON
-	String::from("OK data_quest_JSON")
+	let data: Value = serde_json::json!({
+    "room_id": "forest_01",
+    "name": "Dark Forest",
+    "is_safe": false});
+	Ok(Success::Quest {data})
 }
 
-pub fn inventory_quests() -> Result<SuccessMessage, CommandError> {
+pub fn inventory_quests() -> Result<Success, ServerError> {
 	// menacisme de recuperation de la data de toutes les quests du player en JSON array
-	// let answer == construit la reponse a partir de OK et de la data de toues les quests en JSON array
-	String::from("OK data_all_quests_JSON_array")
+	let data: Value = serde_json::json!({
+    "room_id": "forest_01",
+    "exits": {
+        "north": "forest_02",
+        "south": "village_01",
+        "east": null,
+        "west": null
+    },
+    "is_safe": false});
+	Ok(Success::Quests {data})
 }
 
 // pub fn help() -> String {
