@@ -1,15 +1,15 @@
-use serde_json::Value;
+use serde_json::{Value, json};
 
 // LES CHAT SONT DES EVENTS!!!!!!!!!
 #[derive(Debug, PartialEq)]
 pub enum Event {
 	// ATTENTION TOUTE LA DATA EST EN JSON
-	PresenceEnter {scope: EventScope, data: Value}, // ROOM data = {"room": "id", "player": "name"}
-	PresenceLeave {scope: EventScope, data: Value}, // ROOM data = {"room": "id", "player": "name"}
-	Invite {scope: EventScope, data: Value}, // GROUP data = {"group": "name", "player": name}
-	Join {scope: EventScope, data: Value}, // GROUP data = {"group": "name", "player": name}
-	Leave {scope: EventScope, data: Value}, //GROUP {"group": "name", "player": name}
-	Chat {scope: EventScope, data: Value}, // ROOM//GROUP//GLOBAL// data = {"global": bool, "room": None/"id", "group": None/"name", "player": "name", "message": "plein de mots"}
+	PresenceEnter {scope: EventScope, data: Value}, // ROOM data = {"id": "room", "player": "name"}
+	PresenceLeave {scope: EventScope, data: Value}, // ROOM data = {"id": "room", "player": "name"}
+	Invite {scope: EventScope, data: Value}, // GROUP data = {"id": "group", "player": name}
+	Join {scope: EventScope, data: Value}, // GROUP data = {"id": "group", "player": name}
+	Leave {scope: EventScope, data: Value}, //GROUP {"id": "group", "player": name}
+	Chat {scope: EventScope, data: Value}, // ROOM//GROUP//GLOBAL// data = {"scope": "global"/"room"/"group", "id": None/"id_group"/"id_room", "player": "name", "message": "plein de mots"}
 	Players {scope: EventScope, data: Value}, // data = {"count": int}
 }
 
@@ -19,6 +19,28 @@ pub enum EventScope {
 	Global,
 	Room,
 	Group,
+}
+
+fn create_data_room(id: String, player: String) -> Value {
+	json!({
+		"id": room,
+		"player": player
+	})
+}
+
+fn create_data_chat(scope: String, id: String, player: String, message: String) -> Value{
+	json!({
+		"scope": scope,
+		"id": id,
+		"player": player,
+		"message": message
+	})
+}
+
+fn create_players_data(count: u16) -> Value {
+	json!({
+		"count": count
+	})
 }
 
 fn scope_to_string(scope: EventScope) -> String {
