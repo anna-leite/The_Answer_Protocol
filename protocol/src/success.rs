@@ -19,8 +19,13 @@ pub enum Success {
     Inventory {data: Value}, // JSON array
     Talk {msg: String},
     Attack {data: Value},
+    // DEFEND
+	// FLEE
+	// USE_ITEM
     Status {data: Value},
     Quest {data: Value},
+    // ABANDON_QUEST
+    // COMPLETE_QUEST
     Quests {data: Value},
     // Help,
 }
@@ -62,3 +67,13 @@ pub fn success_to_string(success: Success) -> Result<String, serde_json::Error> 
         Ok(format!("OK {}", arg))
     }
 }
+
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
+
+//     #[test]
+//     fn you_can_success_to_string() {
+//         todo!();
+//     }
+// }

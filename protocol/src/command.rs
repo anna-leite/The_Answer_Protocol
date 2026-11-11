@@ -3,6 +3,9 @@ use crate::error::{CommandError, ServerError, handle_error};
 use crate::success::{Success, success_to_string};
 
 #[derive(Debug, PartialEq)]
+// pub enum Event{
+// 	GotItem {name: string, item: string, place: string},
+// }
 pub enum Command {
 	Connect {name: String}, // CONNECT player_name ==> rep[OK, ERR 201 NAME_IN_USE, ERR 900 CONNECTION FAILED]
 	Look, // LOOK ==> rep[OK current room state as JSON]
@@ -35,7 +38,7 @@ pub enum Command {
 
 #[derive(Debug, PartialEq)]
 pub enum Direction {
-	Nord,
+	North,
 	Sud,
 	East,
 	West,
@@ -73,7 +76,7 @@ fn parse_move(str_packet: &str) -> Option<Command> {
 	match words.next() {
 		Some("MOVE") => {
 			match words.next() {
-				Some("Nord") => Some(Command::Move {direction: Direction::Nord}),
+				Some("North") => Some(Command::Move {direction: Direction::North}),
 				Some("Sud") => Some(Command::Move {direction: Direction::Sud}),
 				Some("East") => Some(Command::Move {direction: Direction::East}),
 				Some("West") => Some(Command::Move {direction: Direction::West}),
@@ -152,6 +155,7 @@ fn parse_connect(str_packet: String) -> Result<Command, ServerError> {
 	let str_packet = str_packet.strip_suffix("\r\n").ok_or(ServerError::Protocol(CommandError::InvalidCommand))?;
 
 	let count = str_packet.split_whitespace().count();
+
 
 	match count {
 		2 => {
@@ -271,8 +275,8 @@ mod tests {
 	#[test]
 	fn you_can_parse_move() {
 		assert_eq!(
-			parse_move("MOVE Nord"), 
-			Some(Command::Move {direction: Direction::Nord}));
+			parse_move("MOVE North"), 
+			Some(Command::Move {direction: Direction::North}));
 		assert_eq!(
 			parse_move("MOVE Sud"), 
 			Some(Command::Move {direction: Direction::Sud}));
@@ -283,7 +287,7 @@ mod tests {
 			parse_move("MOVE West"), 
 			Some(Command::Move {direction: Direction::West}));
 		assert_eq!(
-			parse_move("VOY Nord"), 
+			parse_move("VOY North"), 
 			None);
 		assert_eq!(
 			parse_move("MOVE Marseille"), 
@@ -369,5 +373,71 @@ mod tests {
 			None);
 	}
 
-	
+	#[test]
+	fn you_can_parse_command() {
+		assert!(matches!(
+			parse_command(" \n".to_string()),
+			Err(ServerError::Protocol(CommandError::InvalidCommand))));
+		assert!(matches!(
+			parse_command("\n".to_string()),
+			Err(ServerError::Protocol(CommandError::InvalidCommand))));
+		assert!(matches!(
+			parse_command("QUIT".to_string()),
+			Err(ServerError::Protocol(CommandError::InvalidCommand))));
+		assert!(matches!(
+			parse_command("QUIT\n".to_string()),
+			Ok(Command::Quit)));
+		assert!(matches!(
+			parse_command("CHAT\n".to_string()),
+			Err(ServerError::Protocol(CommandError::InvalidCommand))));
+		assert!(matches!(
+			parse_command("MOVE North\n".to_string()),
+			Ok(Command::Move {direction: Direction::North})));
+		assert!(matches!(
+			parse_command("CHAT GLOBAL coucou\n".to_string()),
+			Ok(Command::Chat {
+				scope: MessageScope::Global,
+				message})
+			if message == "coucou".to_string()));
+		assert!(matches!(
+			parse_command("CREATE GROUP banana\n".to_string()),
+			Ok(Command::CreateGroup {
+				name})
+			if name == "banana".to_string()));
+	}
+
+	#[test]
+	fn you_can_parse_connect() {
+		assert!(matches!(
+			parse_connect("CONNECT".to_string()),
+			Err(ServerError::Protocol(CommandError::InvalidCommand))
+		));
+		assert!(matches!(
+			parse_connect("CONNECT \r\n".to_string()),
+			Err(ServerError::Protocol(CommandError::InvalidCommand))
+		));
+		assert!(matches!(
+			parse_connect("CONNECT anana\r\n".to_string()),
+			Ok(Command::Connect {name})
+			if name == "anana".to_string()
+		));
+		// trop pratique : 
+		// let result = parse_connect("CONNECT anana\r\n".to_string());
+		// dbg!(&result);
+	}
+
+	// #[test]
+	// fn you_can_parse_packet() {
+	// 	todo!();
+	// }
+
+	// #[test]
+	// fn you_can_handle_command(){
+	// 	todo!();
+	// }
+
+	// #[test]
+	// fn you_can_create_answer() {
+	// 	todo!();
+	// }
 }

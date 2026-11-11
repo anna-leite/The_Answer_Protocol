@@ -22,7 +22,7 @@ pub fn look() -> Result<Success, ServerError> {
 
 pub fn new_direction(direction: Direction) -> Result<Success, ServerError> {
 	let dir_str = match direction {
-		Direction::Nord => "Nord",
+		Direction::North => "North",
 		Direction::Sud => "Sud",
 		Direction::East => "East",
 		Direction::West => "West",

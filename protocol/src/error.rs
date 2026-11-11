@@ -1,9 +1,12 @@
 
+#[derive(Debug)]
 pub enum ServerError {
     Serialization(serde_json::Error),
     Protocol (CommandError),
     // et d'autre qu'on sait pas encore 
 }
+
+#[derive(Debug)]
 pub enum CommandError {
     InvalidCommand,
     // InvalidArgument,
@@ -63,3 +66,23 @@ pub fn handle_error(error: ServerError) -> Result<String, ServerError> {
 //	== ERR 404 PLAYER_NOT_FOUND
 //	== ERR 101 INVALID_COMMAND
 //	== ERR 101 INVALID_ARGMENTS == peut etre a utiliser pour la composition alpha numerique
+
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
+
+//     #[test]
+//     fn you_can_info() {
+//         todo!();
+//     }
+
+//     #[test]
+//     fn you_can_handle_to_string() {
+//         todo!();
+//     }
+
+//     #[test]
+//     fn you_can_handle_error() {
+//         todo!();
+//     }
+// }
