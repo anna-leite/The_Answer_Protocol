@@ -64,7 +64,7 @@ pub fn create_group(name: String) -> Result<Success, ServerError> {
 	// verifie si le nom du groupe est deja utilise
 	// ERR 201 NAME_IN_USE
 	// creer le group
-	Ok(Success::CreateGroup {name: name.to_string()})
+	Ok(Success::GroupCreate {name: name.to_string()})
 }
 
 pub fn group_invit(group_name: &str, player_name: &str) -> Result<Success, ServerError> {

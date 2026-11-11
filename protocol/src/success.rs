@@ -10,7 +10,7 @@ pub enum Success {
     Quit,
     Chat,
     Who {players: u16},
-    CreateGroup {name: String},
+    GroupCreate {name: String},
     GroupInvit,
     GroupJoin {name: String},
     GroupLeave,
@@ -51,7 +51,7 @@ pub fn success_to_string(success: Success) -> Result<String, serde_json::Error> 
 
         Success::Who {players} => format!("players={}", players),
 
-        Success::CreateGroup {name}
+        Success::GroupCreate {name}
         | Success::GroupJoin {name} => format!("group={}", name),
 
         Success::Take {item} => format!("taken={}", item),

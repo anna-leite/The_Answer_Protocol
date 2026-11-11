@@ -13,7 +13,7 @@ pub enum Command {
 	Quit, // QUIT ==> rep[OK bye]
 	Chat {scope: MessageScope, message: String}, // CHAT SCOPE "message" ==> rep[OK, ERR 401 NOT_IN_GROUP, ERR 403 GROUP_NOT_FOUND]
 	Who, // WHO ==> rep[OK players=nb_players]
-	CreateGroup {name: String}, // CREATE GROUP group_name ==> rep[OK group=group_name, ERR 201 NAME_IN_USE]
+	GroupCreate {name: String}, // GROUP CREATE group_name ==> rep[OK group=group_name, ERR 201 NAME_IN_USE]
 	GroupInvit {group_name: String, player_name: String}, // GROUP INVITE group_name player_name ==> rep[OK, ERR 401 NOT_IN_GROUP, ERR 402 ALREADY_IN_GROUP, ERR 403 GROUP_NOT_FOUND, ERR 202 NAME_NOT_FOUND]
 	GroupJoin {name: String}, // GROUP JOIN group_name ==> rep[OK group=group_name, ERR 403 GROUP_NOT_FOUND, ERR 402 ALREADY_IN_GROUP]
 	GroupLeave {name: String}, // GROUP LEAVE group_name ==> rep[OK, ERR 403 GROUP_NOT_FOUND]
@@ -104,7 +104,7 @@ fn parse_group_command(str_packet: &str, count: usize) -> Option<Command> {
 	let mut words = str_packet.split_whitespace();
 
 	match (words.next(), words.next()) {
-		(Some("CREATE"), Some("GROUP")) if count == 3 => Some(Command::CreateGroup {name: words.next()?.to_string()}),
+		(Some("GROUP"), Some("CREATE")) if count == 3 => Some(Command::GroupCreate {name: words.next()?.to_string()}),
 		(Some("GROUP"), Some("INVITE")) if count == 4 => {
 			let group_name = words.next()?.to_string();
 			let player_name = words.next()?.to_string();
@@ -191,7 +191,7 @@ pub fn handle_command(command: Command) -> Result<Success, ServerError> {
 		Command::Quit => quit(),
 		Command::Chat {scope, message} => send_message(scope, message), // avoir pour le ownership ou la ref
 		Command::Who => who(),
-		Command::CreateGroup {name} => create_group(name),
+		Command::GroupCreate {name} => create_group(name),
 		Command::GroupInvit {group_name, player_name} => group_invit(&group_name, &player_name),
 		Command::GroupJoin {name} => group_join(&name),
 		Command::GroupLeave {name} => group_leave(&name),
@@ -320,7 +320,7 @@ mod tests {
 	fn you_can_parse_group_command() {
 		assert_eq!(
 			parse_group_command("CREATE GROUP test", 3),
-			Some(Command::CreateGroup {
+			Some(Command::GroupCreate {
 				name: "test".to_string()}));
 		assert_eq!(
 			parse_group_command("GROUP INVITE test Alice", 4),
@@ -401,7 +401,7 @@ mod tests {
 			if message == "coucou".to_string()));
 		assert!(matches!(
 			parse_command("CREATE GROUP banana\n".to_string()),
-			Ok(Command::CreateGroup {
+			Ok(Command::GroupCreate {
 				name})
 			if name == "banana".to_string()));
 	}
