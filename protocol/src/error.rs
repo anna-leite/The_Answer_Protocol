@@ -45,17 +45,19 @@ impl CommandError {
             // Self::SendFailed => (901, "SEND_FAILED"), 
         }
     }
+
+    pub fn to_string(&self) -> String {
+        let (id, message) = self.info();
+
+        format!("ERR {} {}", id, message)
+    }
 }
 
-pub fn error_to_string(error: CommandError) -> String {
-    let (id, message) = error.info();
 
-    format!("ERR {} {}", id, message)
-}
 
 pub fn handle_error(error: ServerError) -> Result<String, ServerError> {
     match error {
-        ServerError::Protocol(err) => Ok(error_to_string(err)),
+        ServerError::Protocol(err) => Ok(err.to_string()),
         other => Err(other),
     }
 }

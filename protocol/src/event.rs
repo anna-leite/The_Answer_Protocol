@@ -21,14 +21,51 @@ pub enum EventScope {
 	Group,
 }
 
+impl Event {
+	pub fn info(&self) -> (String, String, String) {
+		let (event_type, scope, data) = match self {
+			Event::PresenceEnter {scope, data} => ("PRESENCE ENTER", scope, data),
+			Event::PresenceLeave {scope, data} => ("PRESENCE LEAVE", scope, data),
+			Event::Invite {scope, data} => ("INVITE", scope, data),
+			Event::Join {scope, data} => ("JOIN", scope, data),
+			Event::Leave {scope, data} => ("LEAVE", scope, data),
+			Event::Chat {scope, data} => ("CHAT", scope, data),
+			Event::Players {scope, data} => ("", scope, data),
+		};
+
+		(event_type.to_string(), 
+		scope.to_string(), 
+		serde_json::to_string(&data).unwrap())
+	}
+	// event-line = "EVT" SP event-type SP event-data LF
+	fn to_string(&self) -> String {
+		let (event_type, scope, data) = self.info();
+
+		format!("EVT {} {} {}", scope, event_type, data)
+	}
+
+}
+
+impl EventScope {
+	pub fn to_string(&self) -> String {
+		match self {
+			EventScope::Stats => "STATS".to_string(),
+			EventScope::Global => "GLOBAL".to_string(),
+			EventScope::Room => "ROOM".to_string(),
+			EventScope::Group => "GROUP".to_string(),
+		}
+	}
+
+}
+
 fn create_data_room(id: String, player: String) -> Value {
 	json!({
-		"id": room,
+		"id": id,
 		"player": player
 	})
 }
 
-fn create_data_chat(scope: String, id: String, player: String, message: String) -> Value{
+fn create_data_chat(scope: String, id: String, player: String, message: String) -> Value {
 	json!({
 		"scope": scope,
 		"id": id,
@@ -43,92 +80,13 @@ fn create_players_data(count: u16) -> Value {
 	})
 }
 
-fn scope_to_string(scope: EventScope) -> String {
-	match scope {
-		EventScope::Stats => "STATS".to_string(),
-		EventScope::Global => "GLOBAL".to_string(),
-		EventScope::Room => "ROOM".to_string(),
-		EventScope::Group => "GROUP".to_string(),
-	}
-}
-// ou bien impl info??
-fn extract_information_from_event(event: Event) -> (String, String, String) {
-	let (event_type, scope, data) = match event {
-		Event::PresenceEnter {scope, data} => ("PRESENCE ENTER", scope, data),
-		Event::PresenceLeave {scope, data} => ("PRESENCE LEAVE", scope, data),
-		Event::Invite {scope, data} => ("INVITE", scope, data),
-		Event::Join {scope, data} => ("JOIN", scope, data),
-		Event::Leave {scope, data} => ("LEAVE", scope, data),
-		Event::Chat {scope, data} => ("CHAT", scope, data),
-		Event::Players {scope, data} => ("", scope, data),
-	}
 
-	(event_type.to_string(), 
-	scope_to_string(scope), 
-	serde_json::to_string(&data).unwrap())
-}
 
-// event-line = "EVT" SP event-type SP event-data LF
-fn event_to_string(event: Event) -> Result<String, ServerError> {
-	let (event_type, scope, data) = extract_information_from_event(event);
+// #[cfg(test)]
+// mod tests {
+// 	use super::*;
 
-	format!("EVT {} {} {}", scope, event_type, data)
-}
+// 	#[test]
 
-#[cfg(test)]
-mod tests {
-	use super::*;
-
-	// #[test]
-	// fn you_can_create_data(){
-	// 	todo!();
-	// }
-
-	// #[test]
-	// fn you_can_data_to_string() {
-	// 	todo!();
-	// }
-
-	#[test]
-	fn you_can_event_type_to_string() {
-		assert_eq!(
-			event_type_to_string(Event::PresenceEnter {
-				scope: EventScope::Room {id: "grenier".to_string()},
-				player: "nouille".to_string()}),
-				"PRESENCE ENTER".to_string()
-		);
-		assert_eq!(
-			event_type_to_string(Event::PresenceLeave {
-				scope: EventScope::Room {id: "grenier".to_string()},
-				player: "nouille".to_string()}),
-				"PRESENCE LEAVE".to_string()
-		);
-		assert_eq!(
-			event_type_to_string(Event::Invite {
-				scope: EventScope::Group {name: "le_s".to_string()},
-				guest_player: "nouille".to_string()}),
-				"INVITE".to_string()
-		);
-		assert_eq!(
-			event_type_to_string(Event::Join {
-				scope: EventScope::Group {name: "le_s".to_string()},
-				player: "nouille".to_string()}),
-				"JOIN".to_string()
-		);
-		assert_eq!(
-			event_type_to_string(Event::Chat {
-				scope: EventScope::Group {name: "le_s".to_string()},
-				data: json!({
-					"nom": "Alice",
-					"message": "hola"})}),
-				"JOIN".to_string()
-		);
-		assert_eq!(
-			event_type_to_string(Event::Join {
-				scope: EventScope::Stats,
-				player: 10}),
-				"".to_string()
-		);
-	}
-}
+// }
 

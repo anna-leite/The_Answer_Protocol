@@ -3,9 +3,6 @@ use crate::error::{CommandError, ServerError, handle_error};
 use crate::success::{Success, success_to_string};
 
 #[derive(Debug, PartialEq)]
-// pub enum Event{
-// 	GotItem {name: string, item: string, place: string},
-// }
 pub enum Command {
 	Connect {name: String}, // CONNECT player_name ==> rep[OK, ERR 201 NAME_IN_USE, ERR 900 CONNECTION FAILED]
 	Look, // LOOK ==> rep[OK current room state as JSON]
@@ -216,7 +213,7 @@ pub fn create_answer(packet: String) -> Result<String, ServerError> {
 	match parse_packet(packet) {
 		Ok(command) => match handle_command(command) {
 			Ok(success) => { 
-			let answer = success_to_string(success)
+			let answer = success.to_string()
 				.map_err(ServerError::Serialization)?;
 			Ok(answer)
 			},

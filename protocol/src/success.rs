@@ -30,41 +30,43 @@ pub enum Success {
     // Help,
 }
 
-pub fn success_to_string(success: Success) -> Result<String, serde_json::Error> {
-    let arg: String = match success {
-        Success::Connect => "hello proto=1".to_string(),
-        
-        Success::Quit => "bye".to_string(),
+impl Success {
+    pub fn to_string(&self) -> Result<String, serde_json::Error> {
+        let arg: String = match self {
+            Success::Connect => "hello proto=1".to_string(),
+            
+            Success::Quit => "bye".to_string(),
 
-        Success::Chat
-        | Success::GroupInvit
-        | Success::GroupLeave => String::new(),
+            Success::Chat
+            | Success::GroupInvit
+            | Success::GroupLeave => String::new(),
 
-        Success::Look {data}
-        | Success::Inventory {data}
-        | Success::Attack {data}
-        | Success::Status {data}
-        | Success::Quest {data}
-        | Success::Quests {data}=> serde_json::to_string(&data)?,
+            Success::Look {data}
+            | Success::Inventory {data}
+            | Success::Attack {data}
+            | Success::Status {data}
+            | Success::Quest {data}
+            | Success::Quests {data}=> serde_json::to_string(&data)?,
 
-        Success::Move {new_room} => format!("room={}", new_room),
+            Success::Move {new_room} => format!("room={}", new_room),
 
-        Success::Who {players} => format!("players={}", players),
+            Success::Who {players} => format!("players={}", players),
 
-        Success::GroupCreate {name}
-        | Success::GroupJoin {name} => format!("group={}", name),
+            Success::GroupCreate {name}
+            | Success::GroupJoin {name} => format!("group={}", name),
 
-        Success::Take {item} => format!("taken={}", item),
+            Success::Take {item} => format!("taken={}", item),
 
-        Success::Drop {item} => format!("dropped={}", item),
+            Success::Drop {item} => format!("dropped={}", item),
 
-        Success::Talk {msg} => msg,
-    };
+            Success::Talk {msg} => msg,
+        };
 
-    if arg.is_empty() {
-        Ok("OK".to_string())
-    } else {
-        Ok(format!("OK {}", arg))
+        if arg.is_empty() {
+            Ok("OK".to_string())
+        } else {
+            Ok(format!("OK {}", arg))
+        }
     }
 }
 
