@@ -73,7 +73,7 @@ fn main(){
 	for stream in listener.incoming(){
 		match stream{
 			Ok(stream) => {
-				let address = match stream.peer_addr() {
+				let address = match stream.peer_addr() { // adresse IP + port et pour avoir que l'adresse ip : il suffit d'utiliser ip() sur peer_addr()
 					Ok(addr) => format!("[adress : {}]", addr),
 					Err(_) => "unknown".to_owned()
 				};
