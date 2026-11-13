@@ -59,7 +59,7 @@ impl Success {
 
             Success::Drop {item} => format!("dropped={}", item),
 
-            Success::Talk {msg} => msg,
+            Success::Talk {msg} => msg.to_string(),
         };
 
         if arg.is_empty() {

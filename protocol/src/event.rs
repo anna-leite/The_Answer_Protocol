@@ -58,27 +58,27 @@ impl EventScope {
 
 }
 
-fn create_data_room(id: String, player: String) -> Value {
-	json!({
-		"id": id,
-		"player": player
-	})
-}
+// fn create_data_room(id: String, player: String) -> Value {
+// 	json!({
+// 		"id": id,
+// 		"player": player
+// 	})
+// }
 
-fn create_data_chat(scope: String, id: String, player: String, message: String) -> Value {
-	json!({
-		"scope": scope,
-		"id": id,
-		"player": player,
-		"message": message
-	})
-}
+// fn create_data_chat(scope: String, id: String, player: String, message: String) -> Value {
+// 	json!({
+// 		"scope": scope,
+// 		"id": id,
+// 		"player": player,
+// 		"message": message
+// 	})
+// }
 
-fn create_players_data(count: u16) -> Value {
-	json!({
-		"count": count
-	})
-}
+// fn create_players_data(count: u16) -> Value {
+// 	json!({
+// 		"count": count
+// 	})
+// }
 
 
 

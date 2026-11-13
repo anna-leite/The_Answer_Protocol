@@ -26,6 +26,8 @@ pub fn new_direction(direction: Direction) -> Result<Success, ServerError> {
 		Direction::Sud => "Sud",
 		Direction::East => "East",
 		Direction::West => "West",
+		// Direction::Up => "Up",
+		// Direction::Down => "Down",
 	};
 	println!("{}", dir_str);
 	// update player data !!(ERR 301 NO_EXIT)

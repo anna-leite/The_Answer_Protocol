@@ -1,4 +1,4 @@
-use protocol::command::{create_answer};
+use protocol::command::{create_response};
 use std::io::{BufReader, prelude::*};
 use std::net::{TcpListener, TcpStream};
 
@@ -30,7 +30,7 @@ fn handle_client(mut stream: TcpStream, address: &str){
 				return;
 			}
 			Ok(_) => {
-				let answer = match create_answer(msg.clone()) {
+				let answer = match create_response(msg.clone()) {
 					Ok(response) => response,
 					Err(_error) => {
 						println!("Server error");

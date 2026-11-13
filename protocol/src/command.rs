@@ -1,6 +1,6 @@
 use crate::action::*;
 use crate::error::{CommandError, ServerError, handle_error};
-use crate::success::{Success, success_to_string};
+use crate::success::Success;
 
 #[derive(Debug, PartialEq)]
 pub enum Command {
@@ -209,7 +209,7 @@ pub fn handle_command(command: Command) -> Result<Success, ServerError> {
 	}
 }
 
-pub fn create_answer(packet: String) -> Result<String, ServerError> {
+pub fn create_response(packet: String) -> Result<String, ServerError> {
 	match parse_packet(packet) {
 		Ok(command) => match handle_command(command) {
 			Ok(success) => { 
@@ -434,7 +434,7 @@ mod tests {
 	// }
 
 	// #[test]
-	// fn you_can_create_answer() {
+	// fn you_can_create_response() {
 	// 	todo!();
 	// }
 }
