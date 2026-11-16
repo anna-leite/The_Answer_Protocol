@@ -87,3 +87,11 @@
 // • Toujours en UTC : Évite les bugs lors des changements d'heure (été/hiver) et facilite le croisement de logs entre plusieurs serveurs.
 // • Précision à la milliseconde ou microseconde : Indispensable pour comprendre l'ordre exact d'événements rapides ou asynchrones.
 // • Format JSON pour la production : Si vos logs sont envoyés vers Datadog, ELK ou Grafana, tracing-subscriber permet d'activer la sortie JSON en une seule ligne (.json()).
+
+
+
+
+// A AJOUTER AU TOMML:
+
+// tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
+// tracing-appender = "0.2"

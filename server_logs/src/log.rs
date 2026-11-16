@@ -21,4 +21,11 @@ impl LogType {
 	}
 }
 
+impl Log {
+	pub write_log(&self) {
+		todo!();
+	}
+}
 // ou alors Trois fonntion appele qui creer une phrase.
+
+// utiliser la lib tracing!!!!
