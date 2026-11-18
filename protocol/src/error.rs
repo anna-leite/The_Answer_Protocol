@@ -1,8 +1,10 @@
 
 #[derive(Debug)]
 pub enum ServerError {
+
     Serialization(serde_json::Error),
     Protocol (CommandError),
+    Network(std::io::Error),
     // et d'autre qu'on sait pas encore 
 }
 

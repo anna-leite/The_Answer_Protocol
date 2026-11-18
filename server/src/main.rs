@@ -66,7 +66,6 @@ fn handle_client(mut stream: TcpStream, address: &str){
 fn main(){
 	let listener = TcpListener::bind("127.0.0.1:8080").expect("Failed to bind to adress");
 	let mut handles = Vec::new();
-	// faire un buffer mutex pour redistribuer les messages?
 
 
 	println!("Server listening on 127.0.0.1:8080");
@@ -104,3 +103,11 @@ fn main(){
 // Gestion des erreurs	Éviter les panic en cas de données inattendues
 
 // En résumé : BufReader gère efficacement la lecture tamponnée et write_all() l'écriture complète. Ce sont des outils de communication, pas des mécanismes de sécurité.
+
+// Risque	                        Protection
+// Ligne gigantesque	            Limite de 1024 octets
+// Ligne jamais terminée	        Délai maximal de réception
+// Trop de commandes successives	Limitation du nombre de commandes par période
+// Données UTF-8 invalides	        Validation avant parsing
+// Client qui se déconnecte	        Gestion de read() retournant 0
+// Trop de connexions simultanées	Limitation des connexions
