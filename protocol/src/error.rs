@@ -5,6 +5,9 @@ pub enum ServerError {
     Serialization(serde_json::Error),
     Protocol (CommandError),
     Network(std::io::Error),
+    LineTooLong,
+    IncompleteLine,
+    InvalidUTF8(std::string::FromUtf8Error),
     // et d'autre qu'on sait pas encore 
 }
 

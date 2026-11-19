@@ -93,5 +93,4 @@
 
 // A AJOUTER AU TOMML:
 
-// tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
 // tracing-appender = "0.2"

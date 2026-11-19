@@ -111,3 +111,12 @@ fn main(){
 // Données UTF-8 invalides	        Validation avant parsing
 // Client qui se déconnecte	        Gestion de read() retournant 0
 // Trop de connexions simultanées	Limitation des connexions
+
+fn main {
+	// on met en place le system pour les logs 
+	// on met en place le thread pour recuperer l'input utilisateur grace a un recupe client
+		// est ce que ce thread peut permettre de filtrer les logs d'un autre maniere??
+	// run server 
+	// match err
+	// on ferme le server en netoyant bien les ressources.
+}

@@ -21,15 +21,20 @@ pub enum Command {
 	Attack {name: String}, // ATTACK ncp_name ==> rep[OK combat_status_as_JSON, ERR 404 NPC_NOT_FOUND, ERR 405 NPC_NOT_HOSTILE]
 	Status, // STATUS ==>  rep[OK {"hp": , "max_hp": , "status": ""}]
 	// ATTENTION D'AUTRES COMMANDES A IMPLEMENTER POUR LES COMBATS
-	// DEFEND
+	// DEFEND 
 	// FLEE
-	// USE_ITEM
+	// USE_ITEM {item: String}
+	// NPC STATUS ?????????????
 	Quest {name: String}, // QUEST ncp_name ==> rep[OK quest_data_as_json, ERR 404 NPC_NOT_FOUND, ERR 406 NO_QUEST_AVAILABLE]
 	Quests, // QUESTS ==> rep[OK list_all_player_quest_data_as_JSON_array]
 	// ATTENTION D'AUTRES COMMANDES A IMPLEMENTER POUR LES QUESTS
 	// COMPLETE_QUEST
 	// ABANDON_QUEST
 	// Help , // HELP optional_command_name ==> rep[OK rules, ERR 101 COMMAND_NOT_FOUND]
+
+	// items === a faire!!!!!!!!!!!!!!!! r4evoie une hashmap de toute les rooms du jeu OK {items_id: item_name}
+	// Rooms ====  a faire!!!!!!!!!!!!!!!! r4evoie une hashmap de toute les rooms du jeu OK {room_id: room_name}
+	// peut etre une seule commande ALL et rooms ou items selon ce qu'on veut 
 
 }
 
